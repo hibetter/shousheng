@@ -249,11 +249,14 @@
     var nav = document.getElementById('navLinks');
     if(user){
       nav.innerHTML = '<span class="topbar-user">👤 ' + user + '</span>' +
+        '<a href="calculate.html">计算</a>' +
         '<a href="history.html">历史</a>' +
+        '<a href="about.html">关于</a>' +
         '<a href="profile.html">个人中心</a>' +
         '<button onclick="Auth.logout();location.href=\'index.html\'">退出</button>';
     } else {
-      nav.innerHTML = '<a href="login.html">登录</a>' +
+      nav.innerHTML = '<a href="about.html">关于</a>' +
+        '<a href="login.html">登录</a>' +
         '<a href="register.html" class="btn-topbar-primary">注册</a>';
     }
   } catch(e) { console.warn('导航初始化失败', e); }
@@ -493,10 +496,23 @@ function saveAndView(){
     caoguan: lastResult.caoguan,
     result_detail: JSON.stringify(lastResult),
   };
-  var id = Auth.saveRecord(user, record);
   document.getElementById('saveBtn').disabled = true;
-  document.getElementById('saveBtn').textContent = '✅ 已保存';
-  document.getElementById('saveAlert').innerHTML = '<div class="alert alert-success">记录已保存！<a href="detail.html?id=' + id + '" style="color:var(--primary)">查看详情</a> | <a href="history.html" style="color:var(--primary)">历史记录</a></div>';
+  document.getElementById('saveBtn').textContent = '保存中…';
+  document.getElementById('saveAlert').innerHTML = '';
+  Auth.saveRecord(user, record).then(function(data){
+    if(data && data.ok){
+      document.getElementById('saveBtn').textContent = '✅ 已保存';
+      document.getElementById('saveAlert').innerHTML = '<div class="alert alert-success">记录已保存！<a href="detail.html?id=' + (data.id || '') + '" style="color:var(--primary)">查看详情</a> | <a href="history.html" style="color:var(--primary)">历史记录</a></div>';
+    } else {
+      document.getElementById('saveBtn').disabled = false;
+      document.getElementById('saveBtn').textContent = '💾 保存记录';
+      document.getElementById('saveAlert').innerHTML = '<div class="alert alert-error">' + (data ? data.msg : '保存失败') + '</div>';
+    }
+  }).catch(function(){
+    document.getElementById('saveBtn').disabled = false;
+    document.getElementById('saveBtn').textContent = '💾 保存记录';
+    document.getElementById('saveAlert').innerHTML = '<div class="alert alert-error">网络错误，请稍后重试</div>';
+  });
 }
 
 function resetForm(){

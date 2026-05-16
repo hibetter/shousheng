@@ -57,95 +57,104 @@
 if(!Auth.requireLogin()) throw '';
 
 const user = Auth.getCurrentUsername();
-document.getElementById('navLinks').innerHTML = `
-  <span class="topbar-user">👤 ${user}</span>
-  <a href="calculate.html">计算</a>
-  <a href="history.html" style="color:var(--gold-light)">历史</a>
-  <a href="profile.html">个人中心</a>
-  <button onclick="Auth.logout();location.href='index.html'">退出</button>
-`;
+document.getElementById('navLinks').innerHTML =
+  '<span class="topbar-user">👤 ' + user + '</span>' +
+  '<a href="calculate.html">计算</a>' +
+  '<a href="history.html" style="color:var(--gold-light)">历史</a>' +
+  '<a href="about.html">关于</a>' +
+  '<a href="profile.html">个人中心</a>' +
+  '<button onclick="Auth.logout();location.href=\'index.html\'">退出</button>';
 
 const PAGE_SIZE = 10;
 let currentPage = 1;
 let records = [];
+let allLoaded = false;
 
 function loadRecords(){
-  records = Auth.getRecords(user);
+  document.getElementById('historyBody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:24px">加载中…</td></tr>';
+  Auth.getRecords(user).then(function(data){
+    allLoaded = true;
+    records = (data && data.ok && data.records) ? data.records : [];
+    renderTable();
+  }).catch(function(){
+    allLoaded = true;
+    records = [];
+    renderTable();
+  });
 }
 
 function filteredRecords(){
-  const q = document.getElementById('searchInput').value.trim();
+  var q = document.getElementById('searchInput').value.trim();
   if(!q) return records;
-  return records.filter(r => r.name && r.name.includes(q));
+  return records.filter(function(r){ return r.name && r.name.indexOf(q) > -1; });
 }
 
 function renderTable(){
-  const data = filteredRecords();
-  const total = data.length;
-  const totalPages = Math.ceil(total / PAGE_SIZE) || 1;
+  var data = filteredRecords();
+  var total = data.length;
+  var totalPages = Math.ceil(total / PAGE_SIZE) || 1;
   if(currentPage > totalPages) currentPage = 1;
 
-  const start = (currentPage - 1) * PAGE_SIZE;
-  const pageData = data.slice(start, start + PAGE_SIZE);
+  var start = (currentPage - 1) * PAGE_SIZE;
+  var pageData = data.slice(start, start + PAGE_SIZE);
 
-  const tbody = document.getElementById('historyBody');
-  const empty = document.getElementById('emptyState');
-  const table = document.getElementById('historyTable');
+  var tbody = document.getElementById('historyBody');
+  var empty = document.getElementById('emptyState');
+  var table = document.getElementById('historyTable');
+
+  if(!allLoaded) return;
 
   if(pageData.length === 0){
-    table.style.display = 'none';
-    empty.style.display = '';
+    table.style.display = '';
+    empty.style.display = total === 0 ? '' : 'none';
   } else {
     table.style.display = '';
     empty.style.display = 'none';
   }
 
   tbody.innerHTML = '';
-  pageData.forEach(r => {
-    const date = new Date(r.created_at);
-    const dateStr = date.toLocaleDateString('zh-CN') + ' ' + date.toLocaleTimeString('zh-CN', {hour:'2-digit',minute:'2-digit'});
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td><strong>${r.name || '佚名'}</strong></td>
-      <td class="bazi-cell">${r.bazi || '—'}</td>
-      <td class="amount-cell">¥ ${(r.total_debt||0).toLocaleString()}</td>
-      <td style="font-size:0.8rem;color:var(--text-muted)">${dateStr}</td>
-      <td>
-        <a href="detail.html?id=${r.id}" class="btn btn-secondary btn-sm" style="margin-right:4px">详情</a>
-        <button class="btn btn-danger" onclick="deleteRecord('${r.id}')">删除</button>
-      </td>
-    `;
+  pageData.forEach(function(r){
+    var date = new Date(r.created_at);
+    var dateStr = date.toLocaleDateString('zh-CN') + ' ' + date.toLocaleTimeString('zh-CN', {hour:'2-digit',minute:'2-digit'});
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td><strong>' + (r.name || '佚名') + '</strong></td>' +
+      '<td class="bazi-cell">' + (r.bazi || '—') + '</td>' +
+      '<td class="amount-cell">¥ ' + (r.total_debt||0).toLocaleString() + '</td>' +
+      '<td style="font-size:0.8rem;color:var(--text-muted)">' + dateStr + '</td>' +
+      '<td>' +
+        '<a href="detail.html?id=' + r.id + '" class="btn btn-secondary btn-sm" style="margin-right:4px">详情</a>' +
+        '<button class="btn btn-danger btn-sm" onclick="deleteRecord(\'' + r.id + '\')">删除</button>' +
+      '</td>';
     tbody.appendChild(tr);
   });
 
-  // 分页
   renderPagination(totalPages);
-  document.getElementById('recordCount').textContent = `共 ${total} 条记录`;
+  document.getElementById('recordCount').textContent = '共 ' + total + ' 条记录';
 }
 
 function renderPagination(totalPages){
-  const el = document.getElementById('pagination');
+  var el = document.getElementById('pagination');
   el.innerHTML = '';
   if(totalPages <= 1) return;
-
-  for(let i = 1; i <= totalPages; i++){
-    const btn = document.createElement('button');
+  for(var i = 1; i <= totalPages; i++){
+    var btn = document.createElement('button');
     btn.className = 'page-btn' + (i === currentPage ? ' active' : '');
     btn.textContent = i;
-    btn.onclick = () => { currentPage = i; renderTable(); };
+    btn.onclick = (function(i){ return function(){ currentPage = i; renderTable(); }; })(i);
     el.appendChild(btn);
   }
 }
 
 function deleteRecord(id){
   if(!confirm('确定要删除这条记录吗？')) return;
-  Auth.deleteRecord(user, id);
-  loadRecords();
-  renderTable();
+  Auth.deleteRecord(user, id).then(function(){
+    records = records.filter(function(r){ return r.id !== id; });
+    renderTable();
+  });
 }
 
 loadRecords();
-renderTable();
 </script>
 
 </body>

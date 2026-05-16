@@ -109,13 +109,13 @@
 if(!Auth.requireLogin()) throw '';
 
 const user = Auth.getCurrentUsername();
-document.getElementById('navLinks').innerHTML = `
-  <span class="topbar-user">👤 ${user}</span>
-  <a href="calculate.html">计算</a>
-  <a href="history.html">历史</a>
-  <a href="profile.html">个人中心</a>
-  <button onclick="Auth.logout();location.href='index.html'">退出</button>
-`;
+document.getElementById('navLinks').innerHTML =
+  '<span class="topbar-user">👤 ' + user + '</span>' +
+  '<a href="calculate.html">计算</a>' +
+  '<a href="history.html">历史</a>' +
+  '<a href="about.html">关于</a>' +
+  '<a href="profile.html">个人中心</a>' +
+  '<button onclick="Auth.logout();location.href=\'index.html\'">退出</button>';
 
 const params = new URLSearchParams(location.search);
 const id = params.get('id');

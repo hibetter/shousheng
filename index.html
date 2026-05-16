@@ -15,6 +15,7 @@
     <span>寿生宝鉴</span>
   </a>
   <div class="topbar-nav" id="navLinks">
+    <a href="about.html">关于</a>
     <a href="login.html">登录</a>
     <a href="register.html" class="btn-topbar-primary">注册</a>
   </div>
@@ -74,13 +75,13 @@
 (function(){
   const user = Auth.getCurrentUsername();
   if(user){
-    document.getElementById('navLinks').innerHTML = `
-      <span class="topbar-user">👤 ${user}</span>
-      <a href="calculate.html">计算</a>
-      <a href="history.html">历史</a>
-      <a href="profile.html">个人中心</a>
-      <button onclick="Auth.logout();location.reload()">退出</button>
-    `;
+    document.getElementById('navLinks').innerHTML =
+      '<span class="topbar-user">👤 ' + user + '</span>' +
+      '<a href="calculate.html">计算</a>' +
+      '<a href="history.html">历史</a>' +
+      '<a href="about.html">关于</a>' +
+      '<a href="profile.html">个人中心</a>' +
+      '<button onclick="Auth.logout();location.reload()">退出</button>';
     document.getElementById('heroRegisterBtn').textContent = '查看历史';
     document.getElementById('heroRegisterBtn').href = 'history.html';
   }
