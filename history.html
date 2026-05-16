@@ -56,7 +56,7 @@
 // 登录检查
 if(!Auth.requireLogin()) throw '';
 
-const user = Auth.getCurrentUsername();
+var user = Auth.getCurrentUsername();
 document.getElementById('navLinks').innerHTML =
   '<span class="topbar-user">👤 ' + user + '</span>' +
   '<a href="calculate.html">计算</a>' +
@@ -65,10 +65,10 @@ document.getElementById('navLinks').innerHTML =
   '<a href="profile.html">个人中心</a>' +
   '<button onclick="Auth.logout();location.href=\'index.html\'">退出</button>';
 
-const PAGE_SIZE = 10;
-let currentPage = 1;
-let records = [];
-let allLoaded = false;
+var PAGE_SIZE = 10;
+var currentPage = 1;
+var records = [];
+var allLoaded = false;
 
 function loadRecords(){
   document.getElementById('historyBody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:24px">加载中…</td></tr>';

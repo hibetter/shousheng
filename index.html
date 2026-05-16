@@ -73,7 +73,7 @@
 <script>
 // 检查登录状态更新导航
 (function(){
-  const user = Auth.getCurrentUsername();
+  var user = Auth.getCurrentUsername();
   if(user){
     document.getElementById('navLinks').innerHTML =
       '<span class="topbar-user">👤 ' + user + '</span>' +
