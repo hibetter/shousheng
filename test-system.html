@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>测试公历转农历 - 当前系统</title>
+</head>
+<body>
+  <h1>测试公历转农历（当前系统）</h1>
+  <div id="result"></div>
+  <script src="js/lunar-lib.min.js"></script>
+  <script src="js/lunar.js"></script>
+  <script>
+    var result = document.getElementById('result');
+
+    result.innerHTML += '<h2>检查库是否加载</h2>';
+    result.innerHTML += '<p>typeof window.Solar: ' + typeof window.Solar + '</p>';
+    result.innerHTML += '<p>typeof window.Lunar: ' + typeof window.Lunar + '</p>';
+    result.innerHTML += '<p>typeof Lunar.hasLib: ' + Lunar.hasLib + '</p>';
+
+    // 测试公历转农历
+    result.innerHTML += '<h2>测试1: 公历2008年10月15日 转 农历</h2>';
+    var lunar = Lunar.solarToLunar(2008, 10, 15);
+    result.innerHTML += '<p>农历年: ' + lunar.lunarYear + '</p>';
+    result.innerHTML += '<p>农历月: ' + lunar.lunarMonth + '</p>';
+    result.innerHTML += '<p>农历日: ' + lunar.lunarDay + '</p>';
+    result.innerHTML += '<p>月份名: ' + lunar.monthName + '</p>';
+    result.innerHTML += '<p>日期名: ' + lunar.dayName + '</p>';
+    result.innerHTML += '<p>是否闰月: ' + lunar.isLeap + '</p>';
+
+    // 测试2: 获取八字
+    result.innerHTML += '<h2>测试2: 获取八字（申时15:00）</h2>';
+    var baZi = Lunar.getBaZi(lunar.lunarYear, lunar.lunarMonth, lunar.lunarDay, lunar.isLeap, 15);
+    result.innerHTML += '<p>年柱: ' + baZi.yearGanZhi + '</p>';
+    result.innerHTML += '<p>月柱: ' + baZi.monthGanZhi + '</p>';
+    result.innerHTML += '<p>日柱: ' + baZi.dayGanZhi + '</p>';
+    result.innerHTML += '<p>时柱: ' + baZi.timeGanZhi + '</p>';
+    result.innerHTML += '<p>完整八字: ' + baZi.yearGanZhi + ' ' + baZi.monthGanZhi + ' ' + baZi.dayGanZhi + ' ' + baZi.timeGanZhi + '</p>';
+
+    // 测试3: 农历转公历
+    result.innerHTML += '<h2>测试3: 农历转公历</h2>';
+    var solar = Lunar.lunarToSolar(2008, 8, 26, false);
+    result.innerHTML += '<p>农历: 2008年8月26日</p>';
+    result.innerHTML += '<p>公历: ' + solar.year + '-' + solar.month + '-' + solar.day + '</p>';
+  </script>
+</body>
+</html>

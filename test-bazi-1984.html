@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>八字排盘测试</title>
+</head>
+<body>
+  <h1>八字排盘测试</h1>
+  <div id="result"></div>
+  <script src="js/lunar-lib.js"></script>
+  <script src="js/lunar.js"></script>
+  <script>
+    var result = document.getElementById('result');
+
+    // 用户输入：1984年3月8日23时14分
+    var solarYear = 1984;
+    var solarMonth = 3;
+    var solarDay = 8;
+    var hour = 23;
+    var minute = 14;
+
+    result.innerHTML += '<h2>输入信息</h2>';
+    result.innerHTML += '<p>公历: ' + solarYear + '-' + solarMonth + '-' + solarDay + ' ' + hour + ':' + minute + '</p>';
+
+    // 1. 公历转农历
+    result.innerHTML += '<h2>1. 公历转农历</h2>';
+    var lunarInfo = Lunar.solarToLunar(solarYear, solarMonth, solarDay);
+    result.innerHTML += '<p>农历年: ' + lunarInfo.lunarYear + '</p>';
+    result.innerHTML += '<p>农历月: ' + lunarInfo.lunarMonth + '</p>';
+    result.innerHTML += '<p>农历日: ' + lunarInfo.lunarDay + '</p>';
+    result.innerHTML += '<p>月份名: ' + lunarInfo.monthName + '</p>';
+    result.innerHTML += '<p>日期名: ' + lunarInfo.dayName + '</p>';
+    result.innerHTML += '<p>是否闰月: ' + lunarInfo.isLeap + '</p>';
+
+    // 2. 获取八字（使用小时数23）
+    result.innerHTML += '<h2>2. 获取八字（小时=' + hour + '）</h2>';
+    var baZi = Lunar.getBaZi(lunarInfo.lunarYear, lunarInfo.lunarMonth, lunarInfo.lunarDay, lunarInfo.isLeap, hour);
+    result.innerHTML += '<p>年柱: ' + baZi.yearGanZhi + '</p>';
+    result.innerHTML += '<p>月柱: ' + baZi.monthGanZhi + '</p>';
+    result.innerHTML += '<p>日柱: ' + baZi.dayGanZhi + '</p>';
+    result.innerHTML += '<p>时柱: ' + baZi.timeGanZhi + '</p>';
+    result.innerHTML += '<p>完整八字: ' + baZi.yearGanZhi + ' ' + baZi.monthGanZhi + ' ' + baZi.dayGanZhi + ' ' + baZi.timeGanZhi + '</p>';
+
+    // 3. 期望结果
+    result.innerHTML += '<h2>3. 期望结果</h2>';
+    result.innerHTML += '<p>年柱: 甲 子</p>';
+    result.innerHTML += '<p>月柱: 丁 卯</p>';
+    result.innerHTML += '<p>日柱: 壬 寅</p>';
+    result.innerHTML += '<p>时柱: 庚 子</p>';
+
+    // 4. 用库直接计算（带分钟）
+    result.innerHTML += '<h2>4. 库直接计算（带分钟）</h2>';
+    var solar = Solar.fromYmd(solarYear, solarMonth, solarDay);
+    var lunar = solar.getLunar();
+    result.innerHTML += '<p>农历: ' + lunar.toFullString() + '</p>';
+
+    // 时柱计算（23:14属于子时）
+    var lunarTime = Lunar.fromYmdHms(lunar.getYear(), lunar.getMonth(), lunar.getDay(), hour, minute, 0);
+    var baZiDirect = lunarTime.getEightChar();
+    result.innerHTML += '<p>八字: ' + baZiDirect.getYear() + ' ' + baZiDirect.getMonth() + ' ' + baZiDirect.getDay() + ' ' + baZiDirect.getTime() + '</p>';
+
+    // 5. 检查子时23点是否正确
+    result.innerHTML += '<h2>5. 时柱分析</h2>';
+    result.innerHTML += '<p>23时属于子时（23:00-01:00）</p>';
+    result.innerHTML += '<p>时干支: ' + baZiDirect.getTime() + '</p>';
+  </script>
+</body>
+</html>

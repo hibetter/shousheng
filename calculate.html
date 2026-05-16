@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>寿生宝鉴 - 寿生宝鉴</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- 顶栏 -->
+<nav class="topbar">
+  <a class="topbar-logo" href="index.html">
+    <span class="logo-icon">☯</span>
+    <span>寿生宝鉴</span>
+  </a>
+  <div class="topbar-nav" id="navLinks"></div>
+</nav>
+
+<div class="container">
+
+  <div class="card">
+    <div class="card-title">🔮 输入出生信息</div>
+
+    <!-- 农历/公历切换 -->
+    <div class="tab-group">
+      <button class="tab-btn" id="tabLunar">🌙 农历</button>
+      <button class="tab-btn active" id="tabSolar">☀️ 公历（自动转农历）</button>
+    </div>
+
+    <form id="calcForm">
+      <!-- 姓名 -->
+      <div class="form-group">
+        <label>姓名（可填"佚名"）</label>
+        <input type="text" id="name" placeholder="请输入姓名" value="">
+      </div>
+
+      <!-- 农历输入区 -->
+      <div id="lunarSection">
+        <div class="form-row-3">
+          <div class="form-group">
+            <label>农历年</label>
+            <input type="number" id="lunarYear" placeholder="如 2008" min="1900" max="2099" value="">
+          </div>
+          <div class="form-group">
+            <label>农历月</label>
+            <select id="lunarMonth">
+              <option value="">选择月份</option>
+              <option value="1">正月</option>
+              <option value="2">二月</option>
+              <option value="3">三月</option>
+              <option value="4">四月</option>
+              <option value="5">五月</option>
+              <option value="6">六月</option>
+              <option value="7">七月</option>
+              <option value="8">八月</option>
+              <option value="9">九月</option>
+              <option value="10">十月</option>
+              <option value="11">十一月</option>
+              <option value="12">腊月</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>农历日</label>
+            <select id="lunarDay">
+              <option value="">选择日期</option>
+              <option value="1">初一</option><option value="2">初二</option><option value="3">初三</option>
+              <option value="4">初四</option><option value="5">初五</option><option value="6">初六</option>
+              <option value="7">初七</option><option value="8">初八</option><option value="9">初九</option>
+              <option value="10">初十</option><option value="11">十一</option><option value="12">十二</option>
+              <option value="13">十三</option><option value="14">十四</option><option value="15">十五</option>
+              <option value="16">十六</option><option value="17">十七</option><option value="18">十八</option>
+              <option value="19">十九</option><option value="20">二十</option><option value="21">二十一</option>
+              <option value="22">二十二</option><option value="23">二十三</option><option value="24">二十四</option>
+              <option value="25">二十五</option><option value="26">二十六</option><option value="27">二十七</option>
+              <option value="28">二十八</option><option value="29">二十九</option><option value="30">三十</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>
+            <input type="checkbox" id="isLeap" style="margin-right:6px">
+            闰月出生（若该月为闰月请勾选）
+          </label>
+          <div id="leapHint" style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;display:none"></div>
+        </div>
+      </div>
+
+      <!-- 公历输入区 -->
+      <div id="solarSection" style="display:none">
+        <div class="form-row-3">
+          <div class="form-group">
+            <label>公历年</label>
+            <input type="number" id="solarYear" placeholder="如 2008" min="1900" max="2099">
+          </div>
+          <div class="form-group">
+            <label>公历月</label>
+            <input type="number" id="solarMonth" placeholder="1-12" min="1" max="12">
+          </div>
+          <div class="form-group">
+            <label>公历日</label>
+            <input type="number" id="solarDay" placeholder="1-31" min="1" max="31">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>出生时间（可选，用于精确判断时辰）</label>
+          <input type="time" id="solarTime" value="12:00" style="width:150px">
+          <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px">
+            输入具体出生时间可自动判断早晚子时（23:00-00:00为晚子时，00:00-01:00为早子时）
+          </div>
+        </div>
+        <div id="solarConvertResult" class="alert alert-info" style="display:none"></div>
+      </div>
+
+      <!-- 时辰选择 -->
+      <div class="form-group">
+        <label>出生时辰</label>
+        <div class="shichen-grid" id="shichenGrid">
+          <button type="button" class="shichen-btn" data-hour="23">
+            <div class="shichen-name">晚子时</div><div class="shichen-time">23:00-00:00</div>
+          </button>
+          <button type="button" class="shichen-btn" data-hour="0">
+            <div class="shichen-name">早子时</div><div class="shichen-time">00:00-01:00</div>
+          </button>
+          <button type="button" class="shichen-btn" data-hour="1">
+            <div class="shichen-name">丑时</div><div class="shichen-time">01:00-03:00</div>
+          </button>
+          <button type="button" class="shichen-btn" data-hour="3">
+            <div class="shichen-name">寅时</div><div class="shichen-time">03:00-05:00</div>
+          </button>
+          <button type="button" class="shichen-btn" data-hour="5">
+            <div class="shichen-name">卯时</div><div class="shichen-time">05:00-07:00</div>
+          </button>
+          <button type="button" class="shichen-btn" data-hour="7">
+            <div class="shichen-name">辰时</div><div class="shichen-time">07:00-09:00</div>
+          </button>
+          <button type="button" class="shichen-btn" data-hour="9">
+            <div class="shichen-name">巳时</div><div class="shichen-time">09:00-11:00</div>
+          </button>
+          <button type="button" class="shichen-btn" data-hour="11">
+            <div class="shichen-name">午时</div><div class="shichen-time">11:00-13:00</div>
+          </button>
+          <button type="button" class="shichen-btn" data-hour="13">
+            <div class="shichen-name">未时</div><div class="shichen-time">13:00-15:00</div>
+          </button>
+          <button type="button" class="shichen-btn" data-hour="15">
+            <div class="shichen-name">申时</div><div class="shichen-time">15:00-17:00</div>
+          </button>
+          <button type="button" class="shichen-btn" data-hour="17">
+            <div class="shichen-name">酉时</div><div class="shichen-time">17:00-19:00</div>
+          </button>
+          <button type="button" class="shichen-btn" data-hour="19">
+            <div class="shichen-name">戌时</div><div class="shichen-time">19:00-21:00</div>
+          </button>
+          <button type="button" class="shichen-btn" data-hour="21">
+            <div class="shichen-name">亥时</div><div class="shichen-time">21:00-23:00</div>
+          </button>
+        </div>
+        <input type="hidden" id="selectedHour" value="">
+      </div>
+
+      <div style="margin-top:20px; display:flex; gap:12px; flex-wrap:wrap">
+        <button type="submit" class="btn btn-primary" style="flex:1; min-width:180px">
+          ✨ 开始计算阴债
+        </button>
+        <button type="button" class="btn btn-secondary" onclick="resetForm()" style="min-width:100px">
+          重置
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- 结果区 (隐藏) -->
+  <div id="resultSection" style="display:none">
+    <div class="card">
+      <div class="card-title">📊 计算结果</div>
+
+      <!-- 八字 -->
+      <div class="result-bazi">
+        <div class="bazi-title">✦ 八 字 ✦</div>
+        <div class="bazi-value" id="resultBazi">— — — —</div>
+        <div style="margin-top:8px;font-size:0.85rem;color:rgba(255,255,255,0.7)" id="resultBirthInfo"></div>
+      </div>
+
+      <!-- 欠额明细 -->
+      <table class="result-table">
+        <thead>
+          <tr>
+            <th>项目</th>
+            <th>干支/对应</th>
+            <th style="text-align:right">欠额（元）</th>
+          </tr>
+        </thead>
+        <tbody id="resultTableBody">
+        </tbody>
+      </table>
+
+      <!-- 私债说明 -->
+      <div style="margin-top:12px; padding:12px; background:#fff9f0; border-radius:6px; border:1px solid var(--gold); font-size:0.85rem; color:var(--text-muted)">
+        <strong style="color:var(--primary)">私债说明：</strong>
+        私债 = 官债（即官债金额），利息 = 私债 × <span id="multiplierText"></span>（年龄倍数）
+      </div>
+
+      <!-- 总计 -->
+      <div class="result-total" id="resultTotal">
+        <div>
+          <div class="total-label">总计该还</div>
+          <div style="font-size:0.8rem; color:rgba(255,255,255,0.6); margin-top:2px">官债 + 私债 + 官债利息 + 私债利息</div>
+        </div>
+        <div class="total-value" id="totalDebtValue">0</div>
+      </div>
+
+      <!-- 附加信息 -->
+      <div class="result-extra">
+        <div class="extra-item">
+          <div class="extra-label">读经遍数</div>
+          <div class="extra-value" id="resultReading">—</div>
+        </div>
+        <div class="extra-item">
+          <div class="extra-label">纳库数</div>
+          <div class="extra-value" id="resultNaku">—</div>
+        </div>
+        <div class="extra-item">
+          <div class="extra-label">曹官</div>
+          <div class="extra-value" id="resultCaoguan">—</div>
+        </div>
+      </div>
+
+      <div style="margin-top:20px; display:flex; gap:12px; flex-wrap:wrap">
+        <button class="btn btn-gold" onclick="saveAndView()" id="saveBtn">💾 保存记录</button>
+        <a href="history.html" class="btn btn-secondary">📜 查看历史</a>
+        <button class="btn btn-secondary" onclick="printResult()">🖨️ 打印结果</button>
+      </div>
+      <div id="saveAlert" style="margin-top:10px"></div>
+    </div>
+  </div>
+
+</div>
+
+<script src="js/lunar-lib.js"></script>
+<script src="js/lunar.js"></script>
+<script src="js/calc.js"></script>
+<script src="js/auth.js"></script>
+<script>
+// ---- 导航 ----
+(function(){
+  try {
+    var user = (typeof Auth !== 'undefined' && Auth.getCurrentUsername) ? Auth.getCurrentUsername() : null;
+    var nav = document.getElementById('navLinks');
+    if(user){
+      nav.innerHTML = '<span class="topbar-user">👤 ' + user + '</span>' +
+        '<a href="history.html">历史</a>' +
+        '<a href="profile.html">个人中心</a>' +
+        '<button onclick="Auth.logout();location.href=\'index.html\'">退出</button>';
+    } else {
+      nav.innerHTML = '<a href="login.html">登录</a>' +
+        '<a href="register.html" class="btn-topbar-primary">注册</a>';
+    }
+  } catch(e) { console.warn('导航初始化失败', e); }
+})();
+
+// ---- Tab切换（供 onclick 调用）----
+let currentTab = 'solar';
+function switchTab(tab) {
+  currentTab = tab;
+  if (tab === 'lunar') {
+    document.getElementById('lunarSection').style.display = 'block';
+    document.getElementById('solarSection').style.display = 'none';
+    document.getElementById('tabLunar').classList.add('active');
+    document.getElementById('tabSolar').classList.remove('active');
+  } else {
+    document.getElementById('lunarSection').style.display = 'none';
+    document.getElementById('solarSection').style.display = 'block';
+    document.getElementById('tabLunar').classList.remove('active');
+    document.getElementById('tabSolar').classList.add('active');
+  }
+}
+
+// ---- DOM Ready ----
+document.addEventListener('DOMContentLoaded', function() {
+  // 默认显示公历
+  switchTab('solar');
+
+  // Tab 按钮点击（移除内联 onclick，改用 addEventListener）
+  document.getElementById('tabLunar').addEventListener('click', function() { switchTab('lunar'); });
+  document.getElementById('tabSolar').addEventListener('click', function() { switchTab('solar'); });
+
+  // 时辰按钮点击
+  document.querySelectorAll('.shichen-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.shichen-btn').forEach(function(b) { b.classList.remove('selected'); });
+      btn.classList.add('selected');
+      document.getElementById('selectedHour').value = btn.dataset.hour;
+    });
+  });
+
+  // 公历输入监听 → 实时转农历
+  ['solarYear','solarMonth','solarDay'].forEach(function(id) {
+    document.getElementById(id).addEventListener('input', updateSolarConvert);
+  });
+
+  // 公历时间输入监听 → 自动选择时辰
+  document.getElementById('solarTime').addEventListener('input', autoSelectShichen);
+
+  // 农历年月变化 → 检查闰月
+  document.getElementById('lunarYear').addEventListener('input', checkLeap);
+  document.getElementById('lunarMonth').addEventListener('change', checkLeap);
+
+  // 表单提交
+  document.getElementById('calcForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    submitCalc();
+  });
+});
+
+// ---- 表单提交逻辑 ----
+function submitCalc() {
+  var name = document.getElementById('name').value.trim() || '佚名';
+  var hour = document.getElementById('selectedHour').value;
+  if (!hour) { alert('请选择出生时辰'); return; }
+
+  var lunarYear, lunarMonth, lunarDay, isLeap, solarYear;
+
+  if (currentTab === 'lunar') {
+    lunarYear = parseInt(document.getElementById('lunarYear').value);
+    lunarMonth = parseInt(document.getElementById('lunarMonth').value);
+    lunarDay = parseInt(document.getElementById('lunarDay').value);
+    isLeap = document.getElementById('isLeap').checked;
+    if (!lunarYear || !lunarMonth || !lunarDay) {
+      alert('请填写完整的农历出生年月日'); return;
+    }
+  } else {
+    var sy = parseInt(document.getElementById('solarYear').value);
+    var sm = parseInt(document.getElementById('solarMonth').value);
+    var sd = parseInt(document.getElementById('solarDay').value);
+    if (!sy || !sm || !sd) { alert('请填写完整的公历出生年月日'); return; }
+    var lunar = Lunar.solarToLunar(sy, sm, sd);
+    if (!lunar) { alert('公历转农历失败，请检查日期'); return; }
+    lunarYear = lunar.lunarYear;
+    lunarMonth = lunar.lunarMonth;
+    lunarDay = lunar.lunarDay;
+    isLeap = lunar.isLeap;
+    solarYear = sy;
+  }
+
+  if (!solarYear) {
+    var solar = Lunar.lunarToSolar(lunarYear, lunarMonth, lunarDay, isLeap);
+    solarYear = solar ? solar.year : lunarYear;
+  }
+
+  var params = { lunarYear: lunarYear, lunarMonth: lunarMonth, lunarDay: lunarDay, isLeap: isLeap, hour: parseInt(hour) };
+  var result = DebtCalc.calculate(params, solarYear);
+  lastResult = result;
+  lastParams = { name: name, inputType: currentTab, lunarYear: lunarYear, lunarMonth: lunarMonth, lunarDay: lunarDay, isLeap: isLeap, hour: parseInt(hour), solarYear: solarYear };
+  showResult(name, result);
+}
+
+function autoSelectShichen(){
+  var timeStr = document.getElementById('solarTime').value;
+  if(!timeStr) return;
+  var parts = timeStr.split(':');
+  var h = parseInt(parts[0], 10);
+  var hour;
+  if(h === 23) hour = 23;
+  else if(h >= 0 && h < 1) hour = 0;   // 早子时 00:00-00:59
+  else if(h >= 1 && h < 3) hour = 1;   // 丑时
+  else if(h >= 3 && h < 5) hour = 3;   // 寅时
+  else if(h >= 5 && h < 7) hour = 5;   // 卯时
+  else if(h >= 7 && h < 9) hour = 7;   // 辰时
+  else if(h >= 9 && h < 11) hour = 9;  // 巳时
+  else if(h >= 11 && h < 13) hour = 11; // 午时
+  else if(h >= 13 && h < 15) hour = 13; // 未时
+  else if(h >= 15 && h < 17) hour = 15; // 申时
+  else if(h >= 17 && h < 19) hour = 17; // 酉时
+  else if(h >= 19 && h < 21) hour = 19; // 戌时
+  else if(h >= 21 && h < 23) hour = 21; // 亥时
+  else hour = 11;
+
+  document.querySelectorAll('.shichen-btn').forEach(function(b) { b.classList.remove('selected'); });
+  var btn = document.querySelector('.shichen-btn[data-hour="' + hour + '"]');
+  if(btn){ btn.classList.add('selected'); document.getElementById('selectedHour').value = hour; }
+}
+
+function updateSolarConvert(){
+  var y = parseInt(document.getElementById('solarYear').value);
+  var m = parseInt(document.getElementById('solarMonth').value);
+  var d = parseInt(document.getElementById('solarDay').value);
+  var el = document.getElementById('solarConvertResult');
+  if(y && m && d && y >= 1900 && y <= 2099 && m >= 1 && m <= 12 && d >= 1 && d <= 31){
+    var lunar = Lunar.solarToLunar(y, m, d);
+    if(lunar){
+      var leapStr = lunar.isLeap ? '（闰月）' : '';
+      el.style.display = 'block';
+      el.innerHTML = '🌙 对应农历：' + lunar.lunarYear + '年 ' + lunar.monthName + leapStr + ' ' + lunar.dayName;
+    }
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+// ---- 农历年月变化时检查闰月 ----
+function checkLeap(){
+  var y = parseInt(document.getElementById('lunarYear').value);
+  var m = parseInt(document.getElementById('lunarMonth').value);
+  var hint = document.getElementById('leapHint');
+  if(y && m && y >= 1900 && y <= 2099){
+    var leapMonth = Lunar.getLeapMonth(y);
+    if(leapMonth === m){
+      hint.style.display = 'block';
+      hint.textContent = '✅ ' + y + '年农历' + m + '月有闰月，如出生在闰月请勾选';
+    } else {
+      hint.style.display = 'none';
+      document.getElementById('isLeap').checked = false;
+    }
+  }
+}
+// （闰月监听已移入 DOMContentLoaded）
+
+
+// ---- 计算结果存储 ----
+var lastResult = null;
+var lastParams = null;
+
+// ---- 显示结果 ----
+function showResult(name, r){
+  document.getElementById('resultSection').style.display = 'block';
+  try { document.getElementById('resultSection').scrollIntoView({ behavior:'smooth' }); } catch(e){}
+
+  document.getElementById('resultBazi').textContent = r.bazi;
+  var leapStr = r.isLeap ? '（闰月）' : '';
+  document.getElementById('resultBirthInfo').textContent =
+    name + ' · 农历' + r.lunarYear + '年 ' + r.monthName + leapStr + ' ' + r.dayName + ' · ' + Lunar.getShiChen(lastParams.hour);
+
+  var tbody = document.getElementById('resultTableBody');
+  tbody.innerHTML = '';
+  var rows = [
+    ['年柱', r.yearGanZhi, r.yearAmount],
+    ['月柱（月干）', r.monthGanLabel + '（月干）', r.monthGanAmount],
+    ['月柱（月份）', r.monthName, r.monthAmount],
+    ['日柱（农历日）', r.dayName, r.dayAmount],
+    ['时柱（时干）', r.timeGanLabel + '（时干）', r.timeGanAmount],
+    ['时柱（时支）', r.timeZhiLabel + '（时支）', r.timeZhiAmount],
+    ['官债总额', '年+月干+月份+日+时干+时支', r.officialDebt],
+    ['私债', '= 官债', r.privateDebt],
+    ['官债利息', '官债 × ' + r.multiplier + '倍', r.officialInterest],
+    ['私债利息', '私债 × ' + r.multiplier + '倍', r.privateInterest],
+  ];
+  rows.forEach(function(row) {
+    var label = row[0], sub = row[1], amount = row[2];
+    var tr = document.createElement('tr');
+    var isSummary = (label === '官债总额' || label === '私债' || label === '官债利息' || label === '私债利息');
+    tr.innerHTML =
+      '<td>' + (isSummary ? '<strong>' + label + '</strong>' : label) + '</td>' +
+      '<td style="color:var(--text-muted);font-size:0.85rem">' + sub + '</td>' +
+      '<td class="amount">' + amount.toLocaleString() + '</td>';
+    if(isSummary) tr.style.background = '#fdf8f0';
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById('multiplierText').textContent = r.multiplier;
+  document.getElementById('totalDebtValue').textContent = r.totalDebt.toLocaleString() + ' 元';
+  document.getElementById('resultReading').textContent = r.reading + ' 遍';
+  document.getElementById('resultNaku').textContent = r.naku + ' 库';
+  document.getElementById('resultCaoguan').textContent = r.caoguan + ' 官';
+  document.getElementById('saveBtn').disabled = false;
+  document.getElementById('saveBtn').textContent = '💾 保存记录';
+  document.getElementById('saveAlert').innerHTML = '';
+}
+
+// ---- 保存记录 ----
+function saveAndView(){
+  var user = Auth.getCurrentUsername();
+  if(!user){
+    document.getElementById('saveAlert').innerHTML = '<div class="alert alert-error">请先<a href="login.html" style="color:var(--primary)">登录</a>后保存记录</div>';
+    return;
+  }
+  var record = {
+    name: lastParams.name,
+    input_type: lastParams.inputType,
+    lunar_year: lastParams.lunarYear,
+    lunar_month: lastParams.lunarMonth,
+    lunar_day: lastParams.lunarDay,
+    is_leap: lastParams.isLeap ? 1 : 0,
+    hour_zhi: lastResult.timeZhi,
+    bazi: lastResult.bazi,
+    official_debt: lastResult.officialDebt,
+    private_debt: lastResult.privateDebt,
+    official_interest: lastResult.officialInterest,
+    private_interest: lastResult.privateInterest,
+    total_debt: lastResult.totalDebt,
+    reading: lastResult.reading,
+    naku: lastResult.naku,
+    caoguan: lastResult.caoguan,
+    result_detail: JSON.stringify(lastResult),
+  };
+  var id = Auth.saveRecord(user, record);
+  document.getElementById('saveBtn').disabled = true;
+  document.getElementById('saveBtn').textContent = '✅ 已保存';
+  document.getElementById('saveAlert').innerHTML = '<div class="alert alert-success">记录已保存！<a href="detail.html?id=' + id + '" style="color:var(--primary)">查看详情</a> | <a href="history.html" style="color:var(--primary)">历史记录</a></div>';
+}
+
+function resetForm(){
+  document.getElementById('calcForm').reset();
+  document.querySelectorAll('.shichen-btn').forEach(function(b) { b.classList.remove('selected'); });
+  document.getElementById('selectedHour').value = '';
+  document.getElementById('resultSection').style.display = 'none';
+  var cv = document.getElementById('solarConvertResult');
+  if(cv) cv.style.display = 'none';
+  var lh = document.getElementById('leapHint');
+  if(lh) lh.style.display = 'none';
+}
+
+function printResult(){
+  window.print();
+}
+</script>
+
+</body>
+</html>

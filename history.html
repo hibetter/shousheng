@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>历史记录 - 寿生宝鉴</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="topbar">
+  <a class="topbar-logo" href="index.html">
+    <span class="logo-icon">☯</span>
+    <span>寿生宝鉴</span>
+  </a>
+  <div class="topbar-nav" id="navLinks"></div>
+</nav>
+
+<div class="container">
+  <div class="card">
+    <div class="card-title">📜 历史计算记录</div>
+
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="🔍 按姓名搜索..." oninput="renderTable()">
+      <a href="calculate.html" class="btn btn-primary btn-sm">+ 新计算</a>
+    </div>
+
+    <div id="tableWrapper">
+      <table class="history-table" id="historyTable">
+        <thead>
+          <tr>
+            <th>姓名</th>
+            <th>八字</th>
+            <th>总计该还</th>
+            <th>计算时间</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="historyBody"></tbody>
+      </table>
+      <div id="emptyState" class="empty-state" style="display:none">
+        <div class="empty-icon">📋</div>
+        <p>暂无计算记录</p>
+        <a href="calculate.html" class="btn btn-primary btn-sm" style="margin-top:12px">开始计算</a>
+      </div>
+    </div>
+
+    <div class="pagination" id="pagination"></div>
+
+    <div id="recordCount" style="text-align:center;margin-top:8px;font-size:0.8rem;color:var(--text-muted)"></div>
+  </div>
+</div>
+
+<script src="js/auth.js"></script>
+<script>
+// 登录检查
+if(!Auth.requireLogin()) throw '';
+
+const user = Auth.getCurrentUsername();
+document.getElementById('navLinks').innerHTML = `
+  <span class="topbar-user">👤 ${user}</span>
+  <a href="calculate.html">计算</a>
+  <a href="history.html" style="color:var(--gold-light)">历史</a>
+  <a href="profile.html">个人中心</a>
+  <button onclick="Auth.logout();location.href='index.html'">退出</button>
+`;
+
+const PAGE_SIZE = 10;
+let currentPage = 1;
+let records = [];
+
+function loadRecords(){
+  records = Auth.getRecords(user);
+}
+
+function filteredRecords(){
+  const q = document.getElementById('searchInput').value.trim();
+  if(!q) return records;
+  return records.filter(r => r.name && r.name.includes(q));
+}
+
+function renderTable(){
+  const data = filteredRecords();
+  const total = data.length;
+  const totalPages = Math.ceil(total / PAGE_SIZE) || 1;
+  if(currentPage > totalPages) currentPage = 1;
+
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const pageData = data.slice(start, start + PAGE_SIZE);
+
+  const tbody = document.getElementById('historyBody');
+  const empty = document.getElementById('emptyState');
+  const table = document.getElementById('historyTable');
+
+  if(pageData.length === 0){
+    table.style.display = 'none';
+    empty.style.display = '';
+  } else {
+    table.style.display = '';
+    empty.style.display = 'none';
+  }
+
+  tbody.innerHTML = '';
+  pageData.forEach(r => {
+    const date = new Date(r.created_at);
+    const dateStr = date.toLocaleDateString('zh-CN') + ' ' + date.toLocaleTimeString('zh-CN', {hour:'2-digit',minute:'2-digit'});
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><strong>${r.name || '佚名'}</strong></td>
+      <td class="bazi-cell">${r.bazi || '—'}</td>
+      <td class="amount-cell">¥ ${(r.total_debt||0).toLocaleString()}</td>
+      <td style="font-size:0.8rem;color:var(--text-muted)">${dateStr}</td>
+      <td>
+        <a href="detail.html?id=${r.id}" class="btn btn-secondary btn-sm" style="margin-right:4px">详情</a>
+        <button class="btn btn-danger" onclick="deleteRecord('${r.id}')">删除</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // 分页
+  renderPagination(totalPages);
+  document.getElementById('recordCount').textContent = `共 ${total} 条记录`;
+}
+
+function renderPagination(totalPages){
+  const el = document.getElementById('pagination');
+  el.innerHTML = '';
+  if(totalPages <= 1) return;
+
+  for(let i = 1; i <= totalPages; i++){
+    const btn = document.createElement('button');
+    btn.className = 'page-btn' + (i === currentPage ? ' active' : '');
+    btn.textContent = i;
+    btn.onclick = () => { currentPage = i; renderTable(); };
+    el.appendChild(btn);
+  }
+}
+
+function deleteRecord(id){
+  if(!confirm('确定要删除这条记录吗？')) return;
+  Auth.deleteRecord(user, id);
+  loadRecords();
+  renderTable();
+}
+
+loadRecords();
+renderTable();
+</script>
+
+</body>
+</html>

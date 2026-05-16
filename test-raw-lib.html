@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>测试公历转农历 - 原始库</title>
+</head>
+<body>
+  <h1>测试公历转农历（使用原始 lunar-lib.js）</h1>
+  <div id="result"></div>
+  <script src="js/lunar-lib.js"></script>
+  <script>
+    var result = document.getElementById('result');
+
+    result.innerHTML += '<h2>检查库是否加载</h2>';
+    result.innerHTML += '<p>typeof Solar: ' + typeof Solar + '</p>';
+    result.innerHTML += '<p>typeof Lunar: ' + typeof Lunar + '</p>';
+
+    // 测试1: 公历2008年10月15日 转 农历
+    result.innerHTML += '<h2>测试1: 公历2008年10月15日 转 农历</h2>';
+    var solar = Solar.fromYmd(2008, 10, 15);
+    var lunar = solar.getLunar();
+    result.innerHTML += '<p>公历: 2008-10-15</p>';
+    result.innerHTML += '<p>农历: ' + lunar.toFullString() + '</p>';
+    result.innerHTML += '<p>农历年: ' + lunar.getYear() + '</p>';
+    result.innerHTML += '<p>农历月: ' + lunar.getMonth() + '</p>';
+    result.innerHTML += '<p>农历日: ' + lunar.getDay() + '</p>';
+    result.innerHTML += '<p>是否闰月: ' + (lunar.getMonth() < 0) + '</p>';
+
+    // 测试2: 八字
+    result.innerHTML += '<h2>测试2: 八字</h2>';
+    var baZi = lunar.getEightChar();
+    result.innerHTML += '<p>年柱: ' + baZi.getYear() + '</p>';
+    result.innerHTML += '<p>月柱: ' + baZi.getMonth() + '</p>';
+    result.innerHTML += '<p>日柱: ' + baZi.getDay() + '</p>';
+    result.innerHTML += '<p>时柱: ' + baZi.getTime() + '</p>';
+    result.innerHTML += '<p>完整八字: ' + baZi.getYear() + ' ' + baZi.getMonth() + ' ' + baZi.getDay() + ' ' + baZi.getTime() + '</p>';
+
+    // 测试3: 带时辰的八字
+    result.innerHTML += '<h2>测试3: 带时辰的八字（申时15:00）</h2>';
+    var lunarTime = Lunar.fromYmdHms(lunar.getYear(), lunar.getMonth(), lunar.getDay(), 15, 30, 0);
+    var baZiTime = lunarTime.getEightChar();
+    result.innerHTML += '<p>八字: ' + baZiTime.getYear() + ' ' + baZiTime.getMonth() + ' ' + baZiTime.getDay() + ' ' + baZiTime.getTime() + '</p>';
+
+    // 测试4: 农历转公历
+    result.innerHTML += '<h2>测试4: 农历转公历</h2>';
+    var lunar2 = Lunar.fromYmd(2008, 8, 26);
+    result.innerHTML += '<p>农历: 2008年8月26日</p>';
+    var solar2 = lunar2.getSolar();
+    result.innerHTML += '<p>公历: ' + solar2.toFullString() + '</p>';
+  </script>
+</body>
+</html>

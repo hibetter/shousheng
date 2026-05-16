@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>寿生宝鉴</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- 顶栏 -->
+<nav class="topbar">
+  <a class="topbar-logo" href="index.html">
+    <span class="logo-icon">☯</span>
+    <span>寿生宝鉴</span>
+  </a>
+  <div class="topbar-nav" id="navLinks">
+    <a href="login.html">登录</a>
+    <a href="register.html" class="btn-topbar-primary">注册</a>
+  </div>
+</nav>
+
+<!-- 英雄区 -->
+<div class="hero">
+  <h1>☯ 寿生宝鉴</h1>
+  <p>根据出生八字精准推算阴债欠额<br>官债 · 私债 · 利息 · 读经 · 纳库 · 曹官</p>
+  <div class="hero-btns">
+    <a href="calculate.html" class="btn btn-gold">开始计算</a>
+    <a href="register.html" class="btn btn-secondary" id="heroRegisterBtn">免费注册</a>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- 功能特色 -->
+  <div class="feature-grid">
+    <div class="feature-item">
+      <div class="feature-icon">🔮</div>
+      <div class="feature-title">精准八字推算</div>
+      <div class="feature-desc">支持农历/公历输入，自动计算年月日时四柱</div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">📊</div>
+      <div class="feature-title">详细欠额明细</div>
+      <div class="feature-desc">官债·私债·利息逐项列明，总计一目了然</div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">📜</div>
+      <div class="feature-title">历史记录保存</div>
+      <div class="feature-desc">登录后每次计算自动保存，随时查询历史</div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">📖</div>
+      <div class="feature-title">读经遍数指引</div>
+      <div class="feature-desc">根据年柱给出所需读经遍数与纳库数</div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">🌙</div>
+      <div class="feature-title">农历闰月支持</div>
+      <div class="feature-desc">完整支持闰月出生者的精确计算</div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">⏰</div>
+      <div class="feature-title">十二时辰对应</div>
+      <div class="feature-desc">子丑寅卯辰巳午未申酉戌亥完整对应</div>
+    </div>
+  </div>
+
+</div>
+
+<script src="js/auth.js"></script>
+<script>
+// 检查登录状态更新导航
+(function(){
+  const user = Auth.getCurrentUsername();
+  if(user){
+    document.getElementById('navLinks').innerHTML = `
+      <span class="topbar-user">👤 ${user}</span>
+      <a href="calculate.html">计算</a>
+      <a href="history.html">历史</a>
+      <a href="profile.html">个人中心</a>
+      <button onclick="Auth.logout();location.reload()">退出</button>
+    `;
+    document.getElementById('heroRegisterBtn').textContent = '查看历史';
+    document.getElementById('heroRegisterBtn').href = 'history.html';
+  }
+})();
+</script>
+
+</body>
+</html>

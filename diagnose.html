@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>寿生宝鉴 - 系统诊断</title>
+<style>
+body { font-family: system-ui; max-width: 600px; margin: 50px auto; padding: 20px; background: #1a1a2e; color: #eee; }
+h1 { color: #ffd700; }
+.test { padding: 15px; margin: 10px 0; border-radius: 8px; }
+.pass { background: #1b4332; border: 1px solid #2d6a4f; }
+.fail { background: #5c1a1a; border: 1px solid #9d0208; }
+.warn { background: #3d3d00; border: 1px solid #6d6d00; }
+.info { background: #1a3a5c; border: 1px solid #2563eb; }
+.error { color: #ff6b6b; font-family: monospace; white-space: pre-wrap; background: #2a2a2a; padding: 10px; border-radius: 4px; }
+button { background: #ffd700; color: #000; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 16px; }
+button:hover { background: #ffed4a; }
+</style>
+</head>
+<body>
+
+<h1>🔧 系统诊断</h1>
+<p>检测服务器连接和API功能</p>
+
+<div id="results"></div>
+
+<button onclick="runTests()" style="margin-top: 20px">🔄 重新检测</button>
+<button onclick="location.href='index.html'" style="margin-left: 10px; background: #6c757d">返回首页</button>
+
+<script>
+async function test(name, testFn) {
+  const results = document.getElementById('results');
+  const div = document.createElement('div');
+  div.className = 'test info';
+  div.innerHTML = `<strong>⏳ ${name}</strong> - 检测中...`;
+  results.appendChild(div);
+  
+  try {
+    const result = await testFn();
+    if (result.pass) {
+      div.className = 'test pass';
+      div.innerHTML = `<strong>✅ ${name}</strong><br>${result.msg || '通过'}`;
+    } else {
+      div.className = 'test fail';
+      div.innerHTML = `<strong>❌ ${name}</strong><br>${result.msg || '失败'}`;
+      if (result.error) {
+        div.innerHTML += `<pre class="error">${result.error}</pre>`;
+      }
+    }
+  } catch (e) {
+    div.className = 'test fail';
+    div.innerHTML = `<strong>❌ ${name}</strong><br>发生错误: ${e.message}`;
+  }
+}
+
+async function runTests() {
+  const results = document.getElementById('results');
+  results.innerHTML = '';
+  
+  // 测试1: 检查页面来源
+  await test('页面来源检测', async () => {
+    const isFileProtocol = location.protocol === 'file:';
+    if (isFileProtocol) {
+      return {
+        pass: false,
+        msg: `<strong>⚠️ 问题发现：您直接打开了HTML文件！</strong><br><br>
+        请通过以下方式访问：<br>
+        1. 先运行 <code>start.bat</code><br>
+        2. 浏览器访问 <a href="http://localhost:5000" style="color:#ffd700">http://localhost:5000</a><br><br>
+        直接双击HTML文件会导致API无法调用。`
+      };
+    }
+    return {
+      pass: true,
+      msg: `通过服务器访问: ${location.href}`
+    };
+  });
+  
+  // 测试2: 服务器连接
+  await test('服务器连接', async () => {
+    try {
+      const res = await fetch('/');
+      return { pass: true, msg: `服务器正常 (状态码: ${res.status})` };
+    } catch (e) {
+      return { 
+        pass: false, 
+        msg: '无法连接到服务器',
+        error: e.message 
+      };
+    }
+  });
+  
+  // 测试3: 注册API
+  await test('注册API', async () => {
+    const testUser = 'diag_' + Date.now();
+    try {
+      const res = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: testUser, password: '123456' })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        return { pass: true, msg: '注册功能正常 (测试用户已创建)' };
+      } else {
+        return { pass: false, msg: data.msg };
+      }
+    } catch (e) {
+      return { pass: false, msg: 'API调用失败', error: e.message };
+    }
+  });
+  
+  // 测试4: 登录API
+  await test('登录API', async () => {
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: 'diag_test', password: '123456' })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        return { pass: true, msg: '登录功能正常' };
+      } else {
+        return { pass: false, msg: data.msg || '用户不存在(正常)' };
+      }
+    } catch (e) {
+      return { pass: false, msg: 'API调用失败', error: e.message };
+    }
+  });
+}
+
+runTests();
+</script>
+
+</body>
+</html>

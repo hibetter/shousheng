@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>八字排盘修复验证 v2</title>
+  <style>
+    body { font-family: 'Microsoft YaHei', sans-serif; padding: 20px; }
+    .test { background: #f5f5f5; padding: 15px; margin: 10px 0; border-radius: 8px; }
+    .expected { color: green; font-weight: bold; }
+    .actual { color: blue; font-weight: bold; }
+    .wrong { color: red; }
+    .correct { color: green; }
+  </style>
+</head>
+<body>
+  <h1>八字排盘修复验证 v2</h1>
+  <div id="result"></div>
+  <script src="js/lunar-lib.js"></script>
+  <script src="js/lunar.js"></script>
+  <script>
+    var result = document.getElementById('result');
+
+    // 测试用例
+    var tests = [
+      {
+        title: '测试1: 早子时 00:14',
+        solar: { year: 1984, month: 3, day: 8 },
+        hour: 0,
+        expectedLunar: '二月初六',
+        expectedBazi: '甲子 丁卯 辛丑 戊子'
+      },
+      {
+        title: '测试2: 晚子时 23:14',
+        solar: { year: 1984, month: 3, day: 8 },
+        hour: 23,
+        expectedLunar: '二月初七',
+        expectedBazi: '甲子 丁卯 壬寅 庚子'
+      }
+    ];
+
+    tests.forEach(function(tc) {
+      var div = document.createElement('div');
+      div.className = 'test';
+
+      // 1. 公历转农历
+      var lunarInfo = Lunar.solarToLunar(tc.solar.year, tc.solar.month, tc.solar.day);
+
+      // 2. 获取八字
+      var baZi = Lunar.getBaZi(lunarInfo.lunarYear, lunarInfo.lunarMonth, lunarInfo.lunarDay, lunarInfo.isLeap, tc.hour);
+      var actualLunar = lunarInfo.lunarMonth + '月' + lunarInfo.lunarDay + '日';
+      var actualBazi = baZi.yearGanZhi + ' ' + baZi.monthGanZhi + ' ' + baZi.dayGanZhi + ' ' + baZi.timeGanZhi;
+
+      div.innerHTML = '<h2>' + tc.title + '</h2>';
+      div.innerHTML += '<p>公历: ' + tc.solar.year + '-' + tc.solar.month + '-' + tc.solar.day + ' ' + tc.hour + ':14</p>';
+      div.innerHTML += '<p class="actual"><strong>实际农历:</strong> ' + actualLunar + ' (库返回: ' + lunarInfo.lunarMonth + '月' + lunarInfo.lunarDay + '日)</p>';
+      div.innerHTML += '<p class="expected">期望农历: ' + tc.expectedLunar + '</p>';
+      div.innerHTML += '<p class="actual"><strong>实际八字:</strong> ' + actualBazi + '</p>';
+      div.innerHTML += '<p class="expected">期望八字: ' + tc.expectedBazi + '</p>';
+
+      // 分析
+      div.innerHTML += '<details><summary>八字分析</summary>';
+      div.innerHTML += '<p>年柱: ' + baZi.yearGanZhi + '</p>';
+      div.innerHTML += '<p>月柱: ' + baZi.monthGanZhi + '</p>';
+      div.innerHTML += '<p>日柱: ' + baZi.dayGanZhi + ' → 天干: ' + baZi.dayGan + '</p>';
+      div.innerHTML += '<p>时柱: ' + baZi.timeGanZhi + ' (时干: ' + baZi.timeGan + ', 时支: ' + baZi.timeZhi + ')</p>';
+
+      // 五鼠遁验证
+      var dayGanIdx = Lunar.TianGan.indexOf(baZi.dayGan);
+      var timeZhiIdx = Lunar.DiZhi.indexOf(baZi.timeZhi);
+      var ziGanIdx = (dayGanIdx * 2) % 10;
+      div.innerHTML += '<p>五鼠遁: 日干' + baZi.dayGan + '(index=' + dayGanIdx + ') × 2 % 10 = 子时天干=' + ziGanIdx + '(' + Lunar.TianGan[ziGanIdx] + ')</p>';
+      div.innerHTML += '<p>时干: (' + ziGanIdx + ' + ' + timeZhiIdx + ') % 10 = ' + (ziGanIdx + timeZhiIdx) % 10 + '(' + baZi.timeGan + ')</p>';
+      div.innerHTML += '</details>';
+
+      // 验证结果
+      var lunarOk = actualLunar === tc.expectedLunar;
+      var baziOk = actualBazi === tc.expectedBazi;
+      div.innerHTML += '<p class="' + (lunarOk ? 'correct' : 'wrong') + '">农历: ' + (lunarOk ? '✅ 正确' : '❌ 错误') + '</p>';
+      div.innerHTML += '<p class="' + (baziOk ? 'correct' : 'wrong') + '">八字: ' + (baziOk ? '✅ 正确' : '❌ 错误') + '</p>';
+
+      document.getElementById('result').appendChild(div);
+    });
+
+    // 辛丑日子时表
+    result.innerHTML += '<h2>五鼠遁验证：辛丑日子时</h2>';
+    result.innerHTML += '<p>辛 index=7，子时天干 = 7×2%10 = 4 = 戊</p>';
+    result.innerHTML += '<p>辛丑日子时 = 戊子 ✅</p>';
+    result.innerHTML += '<p>所以23:14如果日柱是辛丑，时柱应该是戊子，不是庚子</p>';
+    result.innerHTML += '<p>但如果23:14算晚子时（日期+1），日柱变成壬寅：</p>';
+    result.innerHTML += '<p>壬 index=8，子时天干 = 8×2%10 = 6 = 庚</p>';
+    result.innerHTML += '<p>壬寅日子时 = 庚子 ✅</p>';
+  </script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>八字计算验证 - 寿生宝鉴</title>
+<style>
+body { font-family: 'Microsoft YaHei', Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; background: #f5f5f5; }
+h1 { color: #333; text-align: center; }
+.test-case { background: white; border-radius: 8px; padding: 20px; margin: 15px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.test-case h3 { margin-top: 0; color: #666; }
+.test-case .desc { color: #888; font-size: 0.9rem; margin-bottom: 10px; }
+.result { font-size: 1.1rem; margin: 10px 0; }
+.result .label { display: inline-block; width: 80px; color: #666; }
+.result .value { font-weight: bold; }
+.pass { color: #4caf50; }
+.fail { color: #f44336; }
+.bazi { font-size: 1.5rem; color: #1976d2; letter-spacing: 8px; }
+.summary { background: #e3f2fd; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+button { background: #1976d2; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+button:hover { background: #1565c0; }
+</style>
+</head>
+<body>
+<h1>🔮 八字计算验证</h1>
+
+<div class="summary">
+  <h2 style="margin-top:0">测试说明</h2>
+  <p>本页面用于验证八字排盘计算的正确性，特别是早子时与晚子时的区分。</p>
+  <p><strong>测试用例：</strong></p>
+  <ul>
+    <li><strong>早子时 00:14</strong>：公历1984-03-08 00:14 → 农历二月初六 → 八字：甲子 丁卯 辛丑 戊子</li>
+    <li><strong>晚子时 23:14</strong>：公历1984-03-08 23:14 → 农历二月初七 → 八字：甲子 丁卯 壬寅 庚子</li>
+  </ul>
+</div>
+
+<button onclick="runTests()">▶ 运行测试</button>
+
+<div id="results"></div>
+
+<script src="js/lunar-lib.js"></script>
+<script src="js/lunar.js"></script>
+<script>
+function runTests() {
+  const container = document.getElementById('results');
+  container.innerHTML = '<p style="text-align:center">运行中...</p>';
+
+  const results = Lunar.validateBaZi();
+  let html = '';
+
+  results.forEach((r, i) => {
+    html += `
+      <div class="test-case">
+        <h3>测试 ${i + 1}: ${r.desc}</h3>
+        <div class="desc">输入：${r.input}</div>
+        <div class="desc">农历：${r.lunar}</div>
+        <div class="desc">是否晚子时：${r.isLateNightZi ? '是（日期+1）' : '否'}</div>
+        <div class="result bazi">${r.got}</div>
+        <div class="result"><span class="label">期望值：</span><span>${r.expected}</span></div>
+        <div class="result"><span class="label">结果：</span><span class="${r.passed ? 'pass' : 'fail'}">${r.passed ? '✅ 通过' : '❌ 失败'}</span></div>
+      </div>
+    `;
+  });
+
+  const allPassed = results.every(r => r.passed);
+  html = `
+    <div style="text-align:center; margin: 20px 0;">
+      <h2 class="${allPassed ? 'pass' : 'fail'}">
+        ${allPassed ? '✅ 所有测试通过！' : '❌ 有测试失败，请检查代码'}
+      </h2>
+    </div>
+    ${html}
+  `;
+
+  container.innerHTML = html;
+}
+
+// 自动运行测试
+runTests();
+</script>
+</body>
+</html>

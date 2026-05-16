@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>计算详情 - 寿生宝鉴</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="topbar">
+  <a class="topbar-logo" href="index.html">
+    <span class="logo-icon">☯</span>
+    <span>寿生宝鉴</span>
+  </a>
+  <div class="topbar-nav" id="navLinks"></div>
+</nav>
+
+<div class="container">
+
+  <div id="notFound" class="alert alert-error" style="display:none">
+    记录不存在或已被删除。<a href="history.html" style="color:var(--primary)">返回历史</a>
+  </div>
+
+  <div id="detailContent" style="display:none">
+    <!-- 头部 -->
+    <div class="detail-header">
+      <div class="detail-name" id="detailName">—</div>
+      <div class="detail-bazi" id="detailBazi">— — — —</div>
+      <div style="margin-top:8px;font-size:0.85rem;opacity:0.8" id="detailBirthInfo"></div>
+    </div>
+
+    <!-- 八字各柱 -->
+    <div class="card">
+      <div class="card-title">🀄 八字信息</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+        <div class="extra-item">
+          <div class="extra-label">年柱</div>
+          <div class="extra-value" id="dYearPillar">—</div>
+        </div>
+        <div class="extra-item">
+          <div class="extra-label">月柱</div>
+          <div class="extra-value" id="dMonthPillar">—</div>
+        </div>
+        <div class="extra-item">
+          <div class="extra-label">日柱</div>
+          <div class="extra-value" id="dDayPillar">—</div>
+        </div>
+        <div class="extra-item">
+          <div class="extra-label">时柱</div>
+          <div class="extra-value" id="dTimePillar">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 欠额明细 -->
+    <div class="card">
+      <div class="card-title">💰 阴债欠额明细</div>
+      <table class="result-table">
+        <thead>
+          <tr>
+            <th>项目</th>
+            <th>对应</th>
+            <th style="text-align:right">欠额（元）</th>
+          </tr>
+        </thead>
+        <tbody id="detailTableBody"></tbody>
+      </table>
+
+      <!-- 总计 -->
+      <div class="result-total" style="margin-top:16px">
+        <div>
+          <div class="total-label">总计该还</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-top:2px">官债 + 私债 + 官债利息 + 私债利息</div>
+        </div>
+        <div class="total-value" id="dTotalDebt">—</div>
+      </div>
+
+      <!-- 附加 -->
+      <div class="result-extra" style="margin-top:16px">
+        <div class="extra-item">
+          <div class="extra-label">读经遍数</div>
+          <div class="extra-value" id="dReading">—</div>
+        </div>
+        <div class="extra-item">
+          <div class="extra-label">纳库数</div>
+          <div class="extra-value" id="dNaku">—</div>
+        </div>
+        <div class="extra-item">
+          <div class="extra-label">曹官</div>
+          <div class="extra-value" id="dCaoguan">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 操作 -->
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px">
+      <a href="history.html" class="btn btn-secondary">← 返回历史</a>
+      <a href="calculate.html" class="btn btn-primary">+ 新计算</a>
+      <button class="btn btn-secondary" onclick="window.print()">🖨️ 打印</button>
+      <button class="btn btn-danger" id="deleteBtn">🗑️ 删除</button>
+    </div>
+  </div>
+
+</div>
+
+<script src="js/auth.js"></script>
+<script>
+if(!Auth.requireLogin()) throw '';
+
+const user = Auth.getCurrentUsername();
+document.getElementById('navLinks').innerHTML = `
+  <span class="topbar-user">👤 ${user}</span>
+  <a href="calculate.html">计算</a>
+  <a href="history.html">历史</a>
+  <a href="profile.html">个人中心</a>
+  <button onclick="Auth.logout();location.href='index.html'">退出</button>
+`;
+
+const params = new URLSearchParams(location.search);
+const id = params.get('id');
+
+if(!id){
+  document.getElementById('notFound').style.display = '';
+} else {
+  const record = Auth.getRecord(user, id);
+  if(!record){
+    document.getElementById('notFound').style.display = '';
+  } else {
+    document.getElementById('detailContent').style.display = '';
+    renderDetail(record);
+
+    document.getElementById('deleteBtn').onclick = function(){
+      if(confirm('确定要删除这条记录吗？')){
+        Auth.deleteRecord(user, id);
+        location.href = 'history.html';
+      }
+    };
+  }
+}
+
+function renderDetail(r){
+  const rd = r.result_detail ? JSON.parse(r.result_detail) : {};
+  const monthNames = ['正月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','腊月'];
+  const dayNames = ['初一','初二','初三','初四','初五','初六','初七','初八','初九','初十',
+    '十一','十二','十三','十四','十五','十六','十七','十八','十九','二十',
+    '二十一','二十二','二十三','二十四','二十五','二十六','二十七','二十八','二十九','三十'];
+  const timeNames = {
+    23:'子时',1:'丑时',3:'寅时',5:'卯时',7:'辰时',9:'巳时',
+    11:'午时',13:'未时',15:'申时',17:'酉时',19:'戌时',21:'亥时'
+  };
+
+  document.getElementById('detailName').textContent = r.name || '佚名';
+  document.getElementById('detailBazi').textContent = r.bazi || '—';
+
+  const leapStr = r.is_leap ? '（闰月）' : '';
+  const mName = monthNames[(r.lunar_month||1)-1] || '';
+  const dName = dayNames[(r.lunar_day||1)-1] || '';
+  document.getElementById('detailBirthInfo').textContent =
+    `农历 ${r.lunar_year}年 ${mName}${leapStr} ${dName}`;
+
+  // 八字各柱
+  const bazi = (r.bazi || '').split(' ');
+  document.getElementById('dYearPillar').textContent = bazi[0] || '—';
+  document.getElementById('dMonthPillar').textContent = bazi[1] || '—';
+  document.getElementById('dDayPillar').textContent = bazi[2] || '—';
+  document.getElementById('dTimePillar').textContent = bazi[3] || '—';
+
+  // 欠额明细
+  const tbody = document.getElementById('detailTableBody');
+  const detailRows = rd.yearAmount !== undefined ? [
+    ['年柱', rd.yearGanZhi || bazi[0], rd.yearAmount || 0],
+    ['月柱（月干）', (rd.monthGanLabel||'')+'（月干）', rd.monthGanAmount || 0],
+    ['月柱（月份）', rd.monthName || mName, rd.monthAmount || 0],
+    ['日柱（农历日）', rd.dayName || dName, rd.dayAmount || 0],
+    ['时柱（时干）', (rd.timeGanLabel||'')+'（时干）', rd.timeGanAmount || 0],
+    ['时柱（时支）', (rd.timeZhiLabel||'')+'（时支）', rd.timeZhiAmount || 0],
+    ['官债总额', '各项之和', r.official_debt || 0],
+    ['私债', '= 官债', r.private_debt || 0],
+    ['官债利息', `官债 × ${rd.multiplier||'?'}倍`, r.official_interest || 0],
+    ['私债利息', `私债 × ${rd.multiplier||'?'}倍`, r.private_interest || 0],
+  ] : [
+    ['官债总额', '—', r.official_debt || 0],
+    ['私债', '—', r.private_debt || 0],
+    ['官债利息', '—', r.official_interest || 0],
+    ['私债利息', '—', r.private_interest || 0],
+  ];
+
+  detailRows.forEach(([label, sub, amount]) => {
+    const isSummary = ['官债总额','私债','官债利息','私债利息'].includes(label);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${isSummary ? '<strong>' + label + '</strong>' : label}</td>
+      <td style="font-size:0.85rem;color:var(--text-muted)">${sub}</td>
+      <td class="amount">${(amount||0).toLocaleString()}</td>
+    `;
+    if(isSummary) tr.style.background = '#fdf8f0';
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById('dTotalDebt').textContent = (r.total_debt||0).toLocaleString() + ' 元';
+  document.getElementById('dReading').textContent = (r.reading||0) + ' 遍';
+  document.getElementById('dNaku').textContent = (r.naku||0) + ' 库';
+  document.getElementById('dCaoguan').textContent = (r.caoguan||'—') + ' 官';
+}
+</script>
+
+</body>
+</html>
