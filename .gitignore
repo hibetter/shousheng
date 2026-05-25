@@ -11,3 +11,7 @@ lunar-javascript-master/
 lunar-javascript-master.zip
 test-*.html
 validate.html
+build/
+dist/
+*.spec
+.workbuddy/

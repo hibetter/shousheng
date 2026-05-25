@@ -1,3 +1,12 @@
+/**
+ * 寿生宝鉴（还阴债计算）— 农历算法库（基于 lunar-javascript）
+ * 
+ * 免费分享，愿见者得安。
+ * 信诚则灵，心念为善。
+ * 
+ * 原始库来源：https://github.com/6tail/lunar-javascript
+ * 本文件为项目集成使用，原始版权归原作者所有。
+ */
 ;(function(root,factory){
   if (typeof define==='function'&&define.amd){
     define(factory);

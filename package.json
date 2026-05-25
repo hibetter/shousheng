@@ -1,16 +1,33 @@
 {
   "name": "yinzhai",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "寿生宝鉴（阴债计算器）— 根据出生八字精准推算阴债欠额",
+  "main": "index.html",
   "scripts": {
+    "start": "python server.py",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "阴债",
+    "寿生债",
+    "八字",
+    "道教",
+    "受生债",
+    "阴债计算"
+  ],
+  "author": "王乾源（Hibetter）<hibetter@qq.com>",
+  "license": "SEE LICENSE FILE",
   "type": "commonjs",
   "dependencies": {
     "sql.js": "^1.14.1"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/[your-username]/yinzhai.git"
+  },
+  "bugs": {
+    "email": "hibetter@qq.com",
+    "url": "https://github.com/[your-username]/yinzhai/issues"
+  },
+  "homepage": "https://github.com/[your-username]/yinzhai#readme"
 }

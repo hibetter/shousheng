@@ -1,7 +1,6 @@
 @echo off
-REM 寿生宝鉴 - 启动后端服务
+REM 寿生宝鉴 - 一键启动脚本
 REM 使用 Python + Flask + SQLite
-
 cd /d %~dp0
 
 echo ================================

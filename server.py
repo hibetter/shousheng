@@ -1,17 +1,30 @@
 #!/usr/bin/env python3
 """
-寿生宝鉴 - 后端服务
+寿生宝鉴（还阴债计算）— 后端服务
 基于 Flask + SQLite，提供用户认证与记录管理的 REST API
+
+免费分享，愿见者得安。
+信诚则灵，心念为善。
 """
+
 import sqlite3
 import os
+import sys
 import json
 from datetime import datetime
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, 'yinzhai.db')
+# PyInstaller 打包时资源在 sys._MEIPASS，否则取脚本所在目录
+if getattr(sys, 'frozen', False):
+    BASE_DIR = sys._MEIPASS
+    # 数据库放在 exe 同级目录，确保数据持久化
+    DB_DIR = os.path.dirname(sys.executable)
+else:
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    DB_DIR = BASE_DIR
+
+DB_PATH = os.path.join(DB_DIR, 'yinzhai.db')
 
 app = Flask(__name__, static_folder=BASE_DIR, static_url_path='')
 CORS(app, supports_credentials=True, origins=["http://localhost:5000", "http://127.0.0.1:5000", "null"])
@@ -395,7 +408,7 @@ if __name__ == '__main__':
     print('=' * 50)
     print('  寿生宝鉴 后端服务')
     print('  数据库:', DB_PATH)
-    print('  API地址: <ADDRESS>HTTP://localhost:5000</ADDRESS>')
-    print('  前端地址: <ADDRESS>http://localhost:5000</ADDRESS>')
+    print('  访问地址: http://localhost:5000')
+    print('  按 Ctrl+C 停止服务')
     print('=' * 50)
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=False)
