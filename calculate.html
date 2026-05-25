@@ -432,7 +432,7 @@ function showResult(name, r){
   document.getElementById('resultBazi').textContent = r.bazi;
   var leapStr = r.isLeap ? '（闰月）' : '';
   document.getElementById('resultBirthInfo').textContent =
-    name + ' · 农历' + r.lunarYear + '年 ' + r.monthName + leapStr + ' ' + r.dayName + ' · ' + Lunar.getShiChen(lastParams.hour);
+    name + ' · 农历' + r.lunarYear + '年 ' + r.monthName + leapStr + ' ' + r.dayName;
 
   var tbody = document.getElementById('resultTableBody');
   tbody.innerHTML = '';

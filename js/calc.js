@@ -47,20 +47,20 @@ const DebtCalc = (function () {
     "庚寅":{"amount":51000,"reading":17,"naku":15,"caoguan":"毛"},"辛卯":{"amount":80000,"reading":27,"naku":4,"caoguan":"张"},
     "壬辰":{"amount":45000,"reading":15,"naku":1,"caoguan":"赵"},"癸巳":{"amount":39000,"reading":13,"naku":50,"caoguan":"卞"},
     "甲午":{"amount":40000,"reading":14,"naku":21,"caoguan":"牛"},"乙未":{"amount":40000,"reading":14,"naku":51,"caoguan":"皇"},
-    "丙申":{"amount":33000,"reading":11,"naku":57,"caoguan":"钮"},"丁酉":{"amount":170000,"reading":57,"naku":59,"caoguan":"郑"},
-    "戊戌":{"amount":38000,"reading":13,"naku":41,"caoguan":"范"},"己亥":{"amount":73000,"reading":25,"naku":48,"caoguan":"彭"},
-    "庚子":{"amount":68000,"reading":23,"naku":34,"caoguan":"吕"},"辛丑":{"amount":51000,"reading":17,"naku":45,"caoguan":"苏"},
-    "壬寅":{"amount":43000,"reading":15,"naku":54,"caoguan":"卢"},"癸卯":{"amount":43000,"reading":15,"naku":63,"caoguan":"蒋"},
-    "甲辰":{"amount":43000,"reading":15,"naku":72,"caoguan":"蔡"},"乙巳":{"amount":83000,"reading":28,"naku":81,"caoguan":"贾"},
-    "丙午":{"amount":58000,"reading":20,"naku":90,"caoguan":"丁"},"丁未":{"amount":43000,"reading":15,"naku":99,"caoguan":"魏"},
-    "戊申":{"amount":33000,"reading":11,"naku":9,"caoguan":"薛"},"己酉":{"amount":68000,"reading":23,"naku":18,"caoguan":"阎"},
-    "庚戌":{"amount":98000,"reading":33,"naku":27,"caoguan":"余"},"辛亥":{"amount":43000,"reading":15,"naku":36,"caoguan":"潘"},
-    "壬子":{"amount":98000,"reading":33,"naku":45,"caoguan":"杜"},"癸丑":{"amount":68000,"reading":23,"naku":54,"caoguan":"阮"},
-    "甲寅":{"amount":33000,"reading":11,"naku":63,"caoguan":"段"},"乙卯":{"amount":68000,"reading":23,"naku":72,"caoguan":"倪"},
-    "丙辰":{"amount":83000,"reading":28,"naku":81,"caoguan":"童"},"丁巳":{"amount":43000,"reading":15,"naku":90,"caoguan":"夏"},
-    "戊午":{"amount":103000,"reading":35,"naku":99,"caoguan":"焦"},"己未":{"amount":38000,"reading":13,"naku":8,"caoguan":"邝"},
-    "庚申":{"amount":53000,"reading":18,"naku":17,"caoguan":"霍"},"辛酉":{"amount":38000,"reading":13,"naku":26,"caoguan":"虞"},
-    "壬戌":{"amount":103000,"reading":35,"naku":35,"caoguan":"万"},"癸亥":{"amount":113000,"reading":38,"naku":44,"caoguan":"呼延"}
+    "丙申":{"amount":33000,"reading":11,"naku":57,"caoguan":"钮"},"丁酉":{"amount":170000,"reading":57,"naku":29,"caoguan":"胡"},
+    "戊戌":{"amount":42000,"reading":14,"naku":36,"caoguan":"晋"},"己亥":{"amount":72000,"reading":24,"naku":50,"caoguan":"卞"},
+    "庚子":{"amount":110000,"reading":37,"naku":9,"caoguan":"李"},"辛丑":{"amount":110000,"reading":27,"naku":18,"caoguan":"吉"},
+    "壬寅":{"amount":96000,"reading":32,"naku":11,"caoguan":"施"},"癸卯":{"amount":33000,"reading":11,"naku":22,"caoguan":"王"},
+    "甲辰":{"amount":29000,"reading":10,"naku":19,"caoguan":"董"},"乙巳":{"amount":90000,"reading":30,"naku":21,"caoguan":"杨"},
+    "丙午":{"amount":53000,"reading":18,"naku":60,"caoguan":"萧"},"丁未":{"amount":91000,"reading":31,"naku":52,"caoguan":"朱"},
+    "戊申":{"amount":80000,"reading":27,"naku":58,"caoguan":"柴"},"己酉":{"amount":90000,"reading":30,"naku":23,"caoguan":"孙"},
+    "庚戌":{"amount":110000,"reading":37,"naku":2,"caoguan":"辛"},"辛亥":{"amount":71000,"reading":24,"naku":40,"caoguan":"卞"},
+    "壬子":{"amount":70000,"reading":24,"naku":3,"caoguan":"孟"},"癸丑":{"amount":27000,"reading":9,"naku":8,"caoguan":"习"},
+    "甲寅":{"amount":33000,"reading":11,"naku":11,"caoguan":"杜"},"乙卯":{"amount":80000,"reading":27,"naku":18,"caoguan":"柳"},
+    "丙辰":{"amount":32000,"reading":11,"naku":33,"caoguan":"贾"},"丁巳":{"amount":70000,"reading":24,"naku":16,"caoguan":"程"},
+    "戊午":{"amount":90000,"reading":30,"naku":39,"caoguan":"史"},"己未":{"amount":43000,"reading":15,"naku":5,"caoguan":"卞"},
+    "庚申":{"amount":61000,"reading":21,"naku":42,"caoguan":"胡"},"辛酉":{"amount":27000,"reading":9,"naku":15,"caoguan":"丁"},
+    "壬戌":{"amount":72000,"reading":24,"naku":40,"caoguan":"彭"},"癸亥":{"amount":75000,"reading":25,"naku":43,"caoguan":"仇"}
   };
 
   const MONTH_GAN_DEBT = {"甲":10000,"乙":20000,"丙":30000,"丁":40000,"戊":50000,"己":60000,"庚":70000,"辛":80000,"壬":90000,"癸":100000};
@@ -119,12 +119,16 @@ const DebtCalc = (function () {
     const timeGan = baZiInfo.timeGan;
     const timeZhi = baZiInfo.timeZhi;
 
-    // 月份名和日期名
-    const monthName = Lunar.MonthNames[lunarMonth - 1];
-    const dayName = Lunar.DayNames[lunarDay - 1];
+    // 月份名和日期名（使用八字调整后的日期，晚子时自动+1天）
+    const adjustedMonth = baZiInfo.lunarMonth;
+    const adjustedDay = baZiInfo.lunarDay;
+    const adjustedYear = baZiInfo.lunarYear;
+    const adjustedIsLeap = baZiInfo.isLeap;
+    const monthName = Lunar.MonthNames[adjustedMonth - 1];
+    const dayName = Lunar.DayNames[adjustedDay - 1];
 
     // 公历日期 (用于显示)
-    const solarDate = Lunar.lunarToSolar(lunarYear, lunarMonth, lunarDay, isLeap);
+    const solarDate = Lunar.lunarToSolar(adjustedYear, adjustedMonth, adjustedDay, adjustedIsLeap);
 
     // --- 各项欠额 ---
     const yearData = YEAR_DEBT[yearGanZhi] || {amount:0,reading:0,naku:0,caoguan:''};
@@ -162,11 +166,11 @@ const DebtCalc = (function () {
       timeGanZhi,
       timeGan,
       timeZhi,
-      // 农历信息
-      lunarYear,
-      lunarMonth,
-      lunarDay,
-      isLeap,
+      // 农历信息（使用八字调整后的日期）
+      lunarYear: adjustedYear,
+      lunarMonth: adjustedMonth,
+      lunarDay: adjustedDay,
+      isLeap: adjustedIsLeap,
       monthName,
       dayName,
       shengXiao: baZiInfo.shengXiao,
