@@ -775,3 +775,23 @@ body {
   color: #7a5c00;
   border: 1px solid var(--gold);
 }
+
+/* ---- 好处网格 ---- */
+.result-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.result-item {
+  background: rgba(201,162,50,0.06);
+  border: 1px solid var(--gold);
+  border-radius: var(--radius);
+  padding: 18px 16px;
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.result-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(200,168,75,0.15);
+}
